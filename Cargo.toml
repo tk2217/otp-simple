@@ -1,0 +1,11 @@
+[package]
+name = "otp-simple"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hmac = "0.12.1"
+
+[dev-dependencies]
+sha1 = "0.10.5"
+sha2 = "0.10.6"
