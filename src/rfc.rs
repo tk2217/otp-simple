@@ -47,7 +47,6 @@ where
     <D::Core as BlockSizeUser>::BlockSize: IsLess<U256>,
     Le<<D::Core as BlockSizeUser>::BlockSize, U256>: NonZero,
 {
-    dbg!(time / step);
     hotp_raw::<D>(time / step, secret)
 }
 

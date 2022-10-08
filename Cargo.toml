@@ -1,6 +1,14 @@
 [package]
 name = "otp-simple"
 version = "0.1.0"
+authors = ["tk2217 <git@tk2217.com>"]
+categories = []
+description = "A simple implementation of the TOTP and HOTP algorithms."
+keywords = ["gamedev", "graphics"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/tk2217/otp-simple"
+
+
 edition = "2021"
 
 [dependencies]
