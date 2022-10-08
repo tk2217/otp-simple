@@ -1,3 +1,5 @@
+//! Implementatations of [TOTP (RFC6238)](https://www.rfc-editor.org/rfc/rfc6238) and [HOTP (RFC4226)](https://www.rfc-editor.org/rfc/rfc4226).
+
 use hmac::{
     digest::{
         block_buffer::Eager,
@@ -9,11 +11,14 @@ use hmac::{
     Hmac, Mac,
 };
 
+/// The standard step length for TOTP.
 pub const DEFAULT_STEP: u64 = 30;
+/// The standard number of output digits for TOTP and HOTP.
 pub const DEFAULT_DIGITS: u8 = 6;
 
+/// Create a Time-Based One-Time Password, wrapped to a specific number of digits.
 #[inline]
-pub fn totp<D>(time: u64, step: u64, digits: u32, secret: &[u8]) -> u32
+pub fn totp<D>(time: u64, step: u64, secret: &[u8], digits: u32) -> u32
 where
     D: CoreProxy,
     D::Core: HashMarker
@@ -28,6 +33,7 @@ where
     truncate_code(totp_raw::<D>(time, step, secret), digits)
 }
 
+/// Create a Time-Based One-Time Password.
 #[inline]
 pub fn totp_raw<D>(time: u64, step: u64, secret: &[u8]) -> u32
 where
@@ -45,8 +51,9 @@ where
     hotp_raw::<D>(time / step, secret)
 }
 
+/// Create an HMAC-Based One-Time Password, wrapped to a specific number of digits.
 #[inline]
-pub fn hotp<D>(count: u64, digits: u32, secret: &[u8]) -> u32
+pub fn hotp<D>(count: u64, secret: &[u8], digits: u32) -> u32
 where
     D: CoreProxy,
     D::Core: HashMarker
@@ -61,6 +68,7 @@ where
     truncate_code(hotp_raw::<D>(count, secret), digits)
 }
 
+/// Create an HMAC-Based One-Time Password.
 pub fn hotp_raw<D>(count: u64, secret: &[u8]) -> u32
 where
     D: CoreProxy,
@@ -83,7 +91,7 @@ where
 }
 
 fn truncate_code(code: u32, digits: u32) -> u32 {
-    code % (10u32.pow(digits))
+    code % 10u32.pow(digits)
 }
 
 fn twist_bytes(input: &[u8]) -> u32 {
@@ -127,7 +135,7 @@ mod test {
 
         for (i, value) in values.into_iter().enumerate() {
             assert_eq!(hotp_raw::<Sha1>(i as u64, secret), value.0);
-            assert_eq!(hotp::<Sha1>(i as u64, DIGITS, secret), value.1);
+            assert_eq!(hotp::<Sha1>(i as u64, secret, DIGITS), value.1);
         }
     }
 
@@ -148,9 +156,9 @@ mod test {
         ];
 
         for (time, codes) in values {
-            assert_eq!(totp::<Sha1>(time, STEP, DIGITS, secrets.0), codes.0);
-            assert_eq!(totp::<Sha256>(time, STEP, DIGITS, secrets.1), codes.1);
-            assert_eq!(totp::<Sha512>(time, STEP, DIGITS, secrets.2), codes.2);
+            assert_eq!(totp::<Sha1>(time, STEP, secrets.0, DIGITS), codes.0);
+            assert_eq!(totp::<Sha256>(time, STEP, secrets.1, DIGITS), codes.1);
+            assert_eq!(totp::<Sha512>(time, STEP, secrets.2, DIGITS), codes.2);
         }
     }
 }
